@@ -1,0 +1,4 @@
+{
+    "com_port": "COM4",
+    "addresses": [1,2] 
+}

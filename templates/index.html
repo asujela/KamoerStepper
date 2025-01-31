@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamoer Pump Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        select, input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kamoer Pump Control</h1>
+
+        <h3>Select Address</h3>
+        <form id="controlForm">
+            <label for="addr">Modbus Address</label>
+            <select name="addr" id="addr">
+                {% for address in addresses %}
+                    <option value="{{ address }}">{{ address }}</option>
+                {% endfor %}
+            </select>
+
+            <div>
+                <button type="submit" onclick="sendCommand('forward')">Forward</button>
+                <button type="submit" onclick="sendCommand('stop')">Stop</button>
+            </div>
+
+            <h3>Set RPM</h3>
+            <input type="number" id="rpm" placeholder="Enter RPM value">
+            <button type="submit" onclick="sendSpeed()">Set Speed</button>
+        </form>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+            function sendCommand(command) {
+                event.preventDefault();
+                let addr = document.getElementById("addr").value;
+        
+                fetch(`/${command}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ addr: addr })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById("status").innerText = "Error: " + error;
+                });
+            }
+        
+            function sendSpeed() {
+                event.preventDefault();
+                let addr = document.getElementById("addr").value;
+                let rpm = document.getElementById("rpm").value;
+        
+                fetch("/setspeed", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ addr: addr, rpm: rpm }) 
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById("status").innerText = "Error: " + error;
+                });
+            }
+        </script>
+</body>
+</html>
